@@ -5,7 +5,9 @@ plugins {
 group 'ru.netology'
 version '1.0-SNAPSHOT'
 
+//Java {
 sourceCompatibility = 11
+// } для силениума
 
 // кодировка файлов (если используете русский язык в файлах)
 compileJava.options.encoding = "UTF-8"

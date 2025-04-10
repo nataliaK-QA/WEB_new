@@ -33,77 +33,118 @@ public class CardOrderTest {
         driver = null;
     }
 
-    // Позитивный тест
     @Test
     void shouldSubmitValidForm() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Иван");
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79270000000");
-        driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        driver.findElement(By.cssSelector("button")).click();
+        fillValidName();
+        fillValidPhone();
+        checkAgreement();
+        submitForm();
 
         String actualText = driver.findElement(By.cssSelector("[data-test-id=order-success]")).getText();
         assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.",
                 actualText.trim());
     }
 
-    // Тесты валидации имени
     @Test
     void shouldShowErrorForLatinName() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Ivanov Ivan");
+        fillInvalidLatinName();
+        fillValidPhone();
+        checkAgreement();
         submitForm();
+
         assertNameError("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.");
     }
 
     @Test
     void shouldShowErrorForEmptyName() {
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79270000000");
+        // Не заполняем имя (оставляем пустым)
+        fillValidPhone();
+        checkAgreement();
         submitForm();
+
         assertNameError("Поле обязательно для заполнения");
     }
 
     @Test
     void shouldShowErrorForNameWithNumbers() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иван123");
+        fillNameWithNumbers();
+        fillValidPhone();
+        checkAgreement();
         submitForm();
+
         assertNameError("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.");
     }
 
-    // Тесты валидации телефона
     @Test
     void shouldShowErrorForShortPhone() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Иван");
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+7927000000");
+        fillValidName();
+        fillInvalidShortPhone();
+        checkAgreement();
         submitForm();
+
         assertPhoneError("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.");
     }
 
     @Test
     void shouldShowErrorForEmptyPhone() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Иван");
+        fillValidName();
+        // Не заполняем телефон (оставляем пустым)
+        checkAgreement();
         submitForm();
+
         assertPhoneError("Поле обязательно для заполнения");
     }
 
     @Test
     void shouldShowErrorForPhoneWithLetters() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Иван");
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+7abcdefghij");
+        fillValidName();
+        fillPhoneWithLetters();
+        checkAgreement();
         submitForm();
+
         assertPhoneError("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.");
     }
 
-    // Тест валидации чекбокса
     @Test
     void shouldShowErrorForUncheckedAgreement() {
-        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Иван");
-        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79270000000");
-        driver.findElement(By.cssSelector("button")).click();
+        fillValidName();
+        fillValidPhone();
+        // Не отмечаем чекбокс согласия
+        submitForm();
+
         assertTrue(driver.findElement(By.cssSelector("[data-test-id=agreement].input_invalid")).isDisplayed());
     }
 
-    // Вспомогательные методы
-    private void submitForm() {
+    // Вспомогательные методы для заполнения полей
+    private void fillValidName() {
+        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иванов Иван");
+    }
+
+    private void fillInvalidLatinName() {
+        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Ivanov Ivan");
+    }
+
+    private void fillNameWithNumbers() {
+        driver.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Иван123");
+    }
+
+    private void fillValidPhone() {
+        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79270000000");
+    }
+
+    private void fillInvalidShortPhone() {
+        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+7927000000");
+    }
+
+    private void fillPhoneWithLetters() {
+        driver.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+7abcdefghij");
+    }
+
+    private void checkAgreement() {
         driver.findElement(By.cssSelector("[data-test-id=agreement]")).click();
+    }
+
+    private void submitForm() {
         driver.findElement(By.cssSelector("button")).click();
     }
 
